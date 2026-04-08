@@ -31,17 +31,31 @@ router.post('/', auth, async (req, res) => {
 })
 
 router.put('/:id', auth, async (req, res) => {
-  const { assignee, ...rest } = req.body
-  const ticket = await Ticket.findByIdAndUpdate(
-    req.params.id,
-    { ...rest, ...(assignee ? { assignee } : { $unset: { assignee: 1 } }) },
-    { new: true }
-  )
-  if (!ticket) return res.status(404).json({ message: 'Not found' })
-  res.json(ticket)
+  try {
+    const ticket = await Ticket.findById(req.params.id)
+    if (!ticket) return res.status(404).json({ message: 'Not found' })
+    // Only creator can edit title/description, anyone can update status/priority/assignee
+    const { title, description, assignee, ...rest } = req.body
+    const isCreator = ticket.createdBy.toString() === req.user.id
+    const update = { ...rest, ...(assignee ? { assignee } : { $unset: { assignee: 1 } }) }
+    if (isCreator) {
+      if (title) update.title = title
+      if (description !== undefined) update.description = description
+    }
+    const updated = await Ticket.findByIdAndUpdate(req.params.id, update, { new: true })
+      .populate('assignee', 'name email')
+      .populate('createdBy', 'name email')
+    res.json(updated)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
 })
 
 router.delete('/:id', auth, async (req, res) => {
+  const ticket = await Ticket.findById(req.params.id)
+  if (!ticket) return res.status(404).json({ message: 'Not found' })
+  if (ticket.createdBy.toString() !== req.user.id)
+    return res.status(403).json({ message: 'Only the creator can delete this ticket' })
   await Ticket.findByIdAndDelete(req.params.id)
   res.json({ message: 'Deleted' })
 })
