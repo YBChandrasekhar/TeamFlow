@@ -20,12 +20,21 @@ export default function ProjectView() {
   const [showForm, setShowForm] = useState(false)
   const [editTicket, setEditTicket] = useState(null)
   const [filters, setFilters] = useState({ status: '', priority: '', search: '' })
+  const [searchInput, setSearchInput] = useState('')
 
   const project = projects.find((p) => p._id === id)
 
   useEffect(() => {
     getProjects(token).then((data) => { if (Array.isArray(data)) setProjects(data) })
   }, [token])
+
+  // Debounce search input by 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchInput }))
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   useEffect(() => {
     if (!id) return
@@ -95,12 +104,12 @@ export default function ProjectView() {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex flex-wrap gap-3 mb-4">
             <input
               type="text"
               placeholder="Search tickets..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-violet-500 w-52"
             />
             <select
@@ -125,11 +134,31 @@ export default function ProjectView() {
             </select>
             {(filters.status || filters.priority || filters.search) && (
               <button
-                onClick={() => setFilters({ status: '', priority: '', search: '' })}
+                onClick={() => { setFilters({ status: '', priority: '', search: '' }); setSearchInput('') }}
                 className="text-sm text-gray-500 hover:text-white transition-colors"
               >
-                Clear filters
+                ✕ Clear filters
               </button>
+            )}
+          </div>
+
+          {/* Active filter tags + ticket count */}
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            <span className="text-gray-500 text-xs">{tickets.length} ticket{tickets.length !== 1 ? 's' : ''}</span>
+            {filters.search && (
+              <span className="bg-violet-500/10 text-violet-400 border border-violet-500/20 text-xs px-2 py-0.5 rounded-full">
+                search: "{filters.search}"
+              </span>
+            )}
+            {filters.status && (
+              <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-2 py-0.5 rounded-full">
+                status: {filters.status}
+              </span>
+            )}
+            {filters.priority && (
+              <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs px-2 py-0.5 rounded-full">
+                priority: {filters.priority}
+              </span>
             )}
           </div>
 
