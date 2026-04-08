@@ -1,4 +1,5 @@
-const BASE = 'http://localhost:5000/api/comments'
+import BASE_URL from './config'
+const BASE = `${BASE_URL}/api/comments`
 
 const headers = (token) => ({
   'Content-Type': 'application/json',

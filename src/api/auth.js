@@ -1,4 +1,5 @@
-const BASE = 'http://localhost:5000/api/auth'
+import BASE_URL from './config'
+const BASE = `${BASE_URL}/api/auth`
 
 export const registerUser = (data) =>
   fetch(`${BASE}/register`, {
