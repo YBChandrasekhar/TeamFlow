@@ -38,6 +38,7 @@ export default function Register() {
             <input
               type="text"
               name="name"
+              autoComplete="name"
               value={form.name}
               onChange={handleChange}
               required
@@ -51,6 +52,7 @@ export default function Register() {
             <input
               type="email"
               name="email"
+              autoComplete="email"
               value={form.email}
               onChange={handleChange}
               required
@@ -64,6 +66,7 @@ export default function Register() {
             <input
               type="password"
               name="password"
+              autoComplete="new-password"
               value={form.password}
               onChange={handleChange}
               required

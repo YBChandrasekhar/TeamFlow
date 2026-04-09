@@ -38,6 +38,7 @@ export default function Login() {
             <input
               type="email"
               name="email"
+              autoComplete="email"
               value={form.email}
               onChange={handleChange}
               required
@@ -51,6 +52,7 @@ export default function Login() {
             <input
               type="password"
               name="password"
+              autoComplete="current-password"
               value={form.password}
               onChange={handleChange}
               required
