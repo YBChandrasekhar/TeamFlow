@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
 import TicketCard from '../components/TicketCard'
 import TicketForm from '../components/TicketForm'
+import Spinner from '../components/Spinner'
 
 export default function ProjectView() {
   const { id } = useParams()
@@ -21,6 +22,7 @@ export default function ProjectView() {
   const [editTicket, setEditTicket] = useState(null)
   const [filters, setFilters] = useState({ status: '', priority: '', search: '' })
   const [searchInput, setSearchInput] = useState('')
+  const [fetching, setFetching] = useState(false)
 
   const project = projects.find((p) => p._id === id)
 
@@ -43,7 +45,11 @@ export default function ProjectView() {
     if (filters.priority) query.priority = filters.priority
     if (filters.search) query.search = filters.search
     const params = new URLSearchParams(query).toString()
-    getTickets(params, token).then((data) => { if (Array.isArray(data)) setTickets(data) })
+    setFetching(true)
+    getTickets(params, token).then((data) => {
+      if (Array.isArray(data)) setTickets(data)
+      setFetching(false)
+    })
   }, [id, filters, token])
 
   const handleCreate = async (form) => {
@@ -163,7 +169,9 @@ export default function ProjectView() {
           </div>
 
           {/* Ticket Grid */}
-          {tickets.length === 0 ? (
+          {fetching ? (
+            <Spinner />
+          ) : tickets.length === 0 ? (
             <div className="text-center py-20 text-gray-600">
               <p className="text-lg">No tickets found</p>
               <p className="text-sm mt-1">Create your first ticket for this project</p>

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { getProjects, createProject, deleteProject } from '../api/projects'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
+import Spinner from '../components/Spinner'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -14,10 +15,12 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState({ title: '', description: '' })
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
 
   useEffect(() => {
     getProjects(token).then((data) => {
       if (Array.isArray(data)) setProjects(data)
+      setFetching(false)
     })
   }, [token])
 
@@ -59,7 +62,9 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {projects.length === 0 ? (
+          {fetching ? (
+            <Spinner />
+          ) : projects.length === 0 ? (
             <div className="text-center py-20 text-gray-600">
               <p className="text-lg">No projects yet</p>
               <p className="text-sm mt-1">Create your first project to get started</p>
